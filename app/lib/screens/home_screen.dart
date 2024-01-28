@@ -1,4 +1,5 @@
-import 'package:custom_cocktails/screens/ingredients_screen.dart';
+import 'package:custom_cocktails/screens/cocktail_list_screen.dart';
+import 'package:custom_cocktails/screens/invent_screen.dart';
 import 'package:flutter/material.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -17,17 +18,17 @@ class HomeScreen extends StatelessWidget {
                 Tab(
                   child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
-                      children: [Icon(Icons.insights), Text(" Ingredients")]),
+                      children: [Icon(Icons.star_rounded), Text(" Invent")]),
                 ),
                 Tab(
                   child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
-                      children: [Icon(Icons.receipt), Text(" Cocktails")]),
+                      children: [Icon(Icons.liquor), Text(" Saved Cocktails")]),
                 ),
               ])),
           body: TabBarView(children: [
-            IngredientsScreen(),
-            IngredientsScreen(),
+            InventScreen(),
+            const CocktailListScreen(),
           ]),
         ));
   }
