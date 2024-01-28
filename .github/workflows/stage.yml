@@ -159,4 +159,4 @@ jobs:
           packageName: com.custom_cocktails
           releaseFiles: app-release.aab
           track: internal # internal,alpha(closed),beta(open),production
-          status: completed
+          status: draft # draft (if not yet published), or completed
