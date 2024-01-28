@@ -1,0 +1,162 @@
+name: "Stage"
+
+on:
+  push:
+    branches: ["main"]
+
+env:
+  IS_CICD: "true"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  create_tag:
+    name: "Create tag"
+    runs-on: ubuntu-latest
+    timeout-minutes: 1
+    defaults:
+      run:
+        shell: bash
+    outputs:
+      build_number: ${{ steps.buildnumber.outputs.build_number }}
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+
+      - name: Generate build number
+        id: buildnumber
+        uses: onyxmueller/build-tag-number@v1
+        with:
+          token: ${{secrets.GITHUB_TOKEN}}
+
+      - name: "Create unique tag"
+        uses: EndBug/latest-tag@v1.6.1
+        with:
+          ref: "1.0.${{steps.buildnumber.outputs.build_number}}"
+
+      - name: "Create staging tag"
+        uses: EndBug/latest-tag@v1.6.1
+        with:
+          ref: stage
+
+  build_app:
+    name: "Build app"
+    needs: [create_tag]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+
+      - name: Setup java
+        uses: actions/setup-java@v4
+        with:
+          distribution: "zulu"
+          java-version: "12.x"
+          cache: "gradle"
+
+      - name: Setup flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.10.0"
+          channel: "stable"
+          cache: true
+
+      - name: Setup AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: "ap-southeast-2"
+
+      - name: Setup terraform
+        uses: hashicorp/setup-terraform@v2
+
+      - name: Get dependencies
+        working-directory: app/cocktail_bar
+        run: flutter pub get
+
+      - name: Initialise terraform state (infrastructure)
+        working-directory: app/cocktail_bar/terraform/infrastructure
+        run: terraform init -backend-config "key=cocktail_bar_app/stage/infrastructure/terraform.tfstate"
+
+      - name: Apply terraform state (infrastructure)
+        working-directory: app/cocktail_bar/terraform/infrastructure
+        run: terraform apply -auto-approve -var="environment=stage"
+
+      - name: Download Android keystore
+        id: android_keystore
+        uses: timheuer/base64-to-file@v1.2
+        with:
+          fileName: upload-keystore.jks
+          encodedString: ${{ secrets.GOOGLE_PLAY_KEYSTORE_BASE64 }}
+
+      - name: Create key.properties
+        run: |
+          echo "storeFile=${{ steps.android_keystore.outputs.filePath }}" > app/cocktail_bar/android/key.properties
+          echo "storePassword=${{ secrets.GOOGLE_PLAY_KEYSTORE_PASSWORD }}" >> app/cocktail_bar/android/key.properties
+          echo "keyPassword=${{ secrets.GOOGLE_PLAY_KEYSTORE_PASSWORD }}" >> app/cocktail_bar/android/key.properties
+          echo "keyAlias=${{ secrets.GOOGLE_PLAY_KEYSTORE_ALIAS }}" >> app/cocktail_bar/android/key.properties
+
+      - name: Create flutter version
+        id: version
+        run: echo "FLUTTER_BUILD=$VERSION" >> $GITHUB_OUTPUT
+        env:
+          VERSION: 1.0.${{needs.create_tag.outputs.build_number}}+${{needs.create_tag.outputs.build_number}}
+
+      - name: Update version in YAML
+        working-directory: app/cocktail_bar
+        run: |
+          echo "version: ${{steps.version.outputs.FLUTTER_BUILD}}" >> pubspec.yaml
+
+      - name: Build appbundle
+        working-directory: app/cocktail_bar
+        run: flutter build appbundle
+
+      - name: Save Android bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-release-${{steps.version.outputs.FLUTTER_BUILD}}
+          path: app/cocktail_bar/build/app/outputs/bundle/release/app-release.aab
+
+  deploy_app:
+    name: "Deploy app"
+    needs: [create_tag, build_app]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Checkout branch
+        uses: actions/checkout@v4
+
+      - name: Create flutter version
+        id: version
+        run: echo "FLUTTER_BUILD=$VERSION" >> $GITHUB_OUTPUT
+        env:
+          VERSION: 1.0.${{needs.create_tag.outputs.build_number}}+${{needs.create_tag.outputs.build_number}}
+
+      - name: Load Android build
+        uses: actions/download-artifact@v4
+        with:
+          name: android-release-${{steps.version.outputs.FLUTTER_BUILD}}
+
+      # To create a key, follow instructions at https://github.com/r0adkll/upload-google-play
+      # Internal track publishes immediately, closed and higher require review from Google play
+      - name: Deploy to Google Play Console
+        uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.GOOGLE_PLAY_SERVICE_KEY }}
+          packageName: com.cocktail_bar
+          releaseFiles: app-release.aab
+          track: internal # internal,alpha(closed),beta(open),production
+          status: completed
