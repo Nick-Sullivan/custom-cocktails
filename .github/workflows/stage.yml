@@ -156,7 +156,7 @@ jobs:
         uses: r0adkll/upload-google-play@v1
         with:
           serviceAccountJsonPlainText: ${{ secrets.GOOGLE_PLAY_SERVICE_KEY }}
-          packageName: com.cocktail_bar
+          packageName: com.custom_cocktails
           releaseFiles: app-release.aab
           track: internal # internal,alpha(closed),beta(open),production
           status: completed
