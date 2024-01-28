@@ -29,6 +29,7 @@ environment:
 # versions available, run `flutter pub outdated`.
 dependencies:
   cupertino_icons: ^1.0.2
+  flex_color_scheme: ^7.2.0
   flutter:
     sdk: flutter
   get_it: ^7.6.4
@@ -52,6 +53,7 @@ flutter:
   #   - assets/images/
   #   - .env.automated
 
+# If you change this, run `flutter pub run flutter_launcher_icons`
 flutter_launcher_icons:
   android: "launcher_icon"
   ios: false

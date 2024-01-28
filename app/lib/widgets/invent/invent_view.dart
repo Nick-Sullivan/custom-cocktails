@@ -57,8 +57,7 @@ class InventView extends StatelessWidget {
                 textAlignVertical: TextAlignVertical.top,
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),
-                  labelText:
-                      "Type in a recipe, and use 'Suggest' to improve it",
+                  labelText: "Start typing a recipe, and use 'Suggest'",
                   alignLabelWithHint: true,
                   // prefixIcon: Icon(Icons.textsms),
                   // contentPadding: EdgeInsets.all(20.0)
