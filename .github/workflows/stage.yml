@@ -81,16 +81,16 @@ jobs:
         uses: hashicorp/setup-terraform@v2
 
       - name: Get dependencies
-        working-directory: app/cocktail_bar
+        working-directory: app
         run: flutter pub get
 
-      - name: Initialise terraform state (infrastructure)
-        working-directory: app/cocktail_bar/terraform/infrastructure
-        run: terraform init -backend-config "key=cocktail_bar_app/stage/infrastructure/terraform.tfstate"
+      # - name: Initialise terraform state (infrastructure)
+      #   working-directory: app/terraform/infrastructure
+      #   run: terraform init -backend-config "key=cocktail_bar_app/stage/infrastructure/terraform.tfstate"
 
-      - name: Apply terraform state (infrastructure)
-        working-directory: app/cocktail_bar/terraform/infrastructure
-        run: terraform apply -auto-approve -var="environment=stage"
+      # - name: Apply terraform state (infrastructure)
+      #   working-directory: app/terraform/infrastructure
+      #   run: terraform apply -auto-approve -var="environment=stage"
 
       - name: Download Android keystore
         id: android_keystore
@@ -101,10 +101,10 @@ jobs:
 
       - name: Create key.properties
         run: |
-          echo "storeFile=${{ steps.android_keystore.outputs.filePath }}" > app/cocktail_bar/android/key.properties
-          echo "storePassword=${{ secrets.GOOGLE_PLAY_KEYSTORE_PASSWORD }}" >> app/cocktail_bar/android/key.properties
-          echo "keyPassword=${{ secrets.GOOGLE_PLAY_KEYSTORE_PASSWORD }}" >> app/cocktail_bar/android/key.properties
-          echo "keyAlias=${{ secrets.GOOGLE_PLAY_KEYSTORE_ALIAS }}" >> app/cocktail_bar/android/key.properties
+          echo "storeFile=${{ steps.android_keystore.outputs.filePath }}" > app/android/key.properties
+          echo "storePassword=${{ secrets.GOOGLE_PLAY_KEYSTORE_PASSWORD }}" >> app/android/key.properties
+          echo "keyPassword=${{ secrets.GOOGLE_PLAY_KEYSTORE_PASSWORD }}" >> app/android/key.properties
+          echo "keyAlias=${{ secrets.GOOGLE_PLAY_KEYSTORE_ALIAS }}" >> app/android/key.properties
 
       - name: Create flutter version
         id: version
@@ -113,19 +113,19 @@ jobs:
           VERSION: 1.0.${{needs.create_tag.outputs.build_number}}+${{needs.create_tag.outputs.build_number}}
 
       - name: Update version in YAML
-        working-directory: app/cocktail_bar
+        working-directory: app
         run: |
           echo "version: ${{steps.version.outputs.FLUTTER_BUILD}}" >> pubspec.yaml
 
       - name: Build appbundle
-        working-directory: app/cocktail_bar
+        working-directory: app
         run: flutter build appbundle
 
       - name: Save Android bundle
         uses: actions/upload-artifact@v4
         with:
           name: android-release-${{steps.version.outputs.FLUTTER_BUILD}}
-          path: app/cocktail_bar/build/app/outputs/bundle/release/app-release.aab
+          path: app/build/app/outputs/bundle/release/app-release.aab
 
   deploy_app:
     name: "Deploy app"
