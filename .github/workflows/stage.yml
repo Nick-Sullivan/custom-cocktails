@@ -243,4 +243,4 @@ jobs:
           packageName: com.custom_cocktails
           releaseFiles: app-release.aab
           track: internal # internal,alpha(closed),beta(open),production
-          status: inProgress # draft, inProgress, halted, or completed
+          status: draft # draft, inProgress, halted, or completed
