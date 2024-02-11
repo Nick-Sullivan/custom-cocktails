@@ -66,6 +66,13 @@ jobs:
       - name: Setup terraform
         uses: hashicorp/setup-terraform@v3
 
+      - name: Setup python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+          cache-dependency-path: server/requirements.txt
+
       - name: Initialise terraform state (foundation)
         working-directory: server/terraform/foundation
         run: terraform init -backend-config "key=custom_cocktails/stage/foundation/terraform.tfstate"
