@@ -35,7 +35,7 @@ function Init-Infrastructure([string]$environment) {
     Set-Location ../..
 
     Set-Location lambda/libs
-    pip install -r requirements.txt --target python --platform manylinux2014_x86_64 --only-binary=:all:
+    pip3.11 install -r requirements.txt --target python --platform manylinux2014_x86_64 --only-binary=:all:
     Set-Location ../..
 
     deactivate
