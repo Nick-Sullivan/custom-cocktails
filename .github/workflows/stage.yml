@@ -80,7 +80,7 @@ jobs:
 
       - name: Build libs (infrastructure)
         working-directory: server/lambda/libs
-        run: pip install -r requirements.txt --target python
+        run: "pip install -r requirements.txt --target python --platform manylinux2014_x86_64 --only-binary=:all:"
 
       - name: Apply terraform state (infrastructure)
         working-directory: server/terraform/infrastructure
