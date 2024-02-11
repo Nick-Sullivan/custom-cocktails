@@ -1,16 +1,31 @@
-# custom_cocktails
+This is designed to be able to run locally (Using VSCode -> Run), or to deploy a custom environment.
 
-A new Flutter project.
+## Getting started
 
-## Getting Started
+1. Create a `.env` file with the following:
 
-This project is a starting point for a Flutter application.
+```bash
+# If you change any of these variables, run "./make.ps1 init"
+ENVIRONMENT=dev
+```
 
-A few resources to get you started if this is your first Flutter project:
+If you want to create a different environment, change `dev` to any unique string and follow the remaining steps.
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+2. Initialise terraform, this pulls down infrastructure variables like API Gateway URLs.
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+```bash
+./make.ps1 init
+```
+
+3. Build
+
+```bash
+./make.ps1 build
+```
+
+4. Cleanup
+
+```bash
+cd terraform/infrastructure
+terraform destroy
+```

@@ -1,0 +1,19 @@
+meta {
+  name: invent
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{API_GATEWAY_URL}}/invent
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "name": "Nicks cocktail",
+    "ingredients": "lemons",
+    "banned_ingredients": "whiskey"
+  }
+}

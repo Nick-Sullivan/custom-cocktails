@@ -20,6 +20,9 @@ class InventView extends StatelessWidget {
                     )));
             controller.clearNotification();
           }
+          if (controller.isLoading) {
+            return const CircularProgressIndicator(key: Key('loading'));
+          }
           return createColumn(context);
         });
   }
@@ -37,6 +40,7 @@ class InventView extends StatelessWidget {
                 key: const Key("nameText"),
                 controller: controller.nameController,
                 autofocus: true,
+                enabled: !controller.isLoading,
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),
                   labelText: "Cocktail name",
@@ -49,15 +53,16 @@ class InventView extends StatelessWidget {
             Container(
               padding: const EdgeInsets.fromLTRB(20, 10, 20, 0),
               child: TextFormField(
-                key: const Key("recipeText"),
+                key: const Key("ingredientsText"),
                 keyboardType: TextInputType.multiline,
                 minLines: 15,
                 maxLines: null,
+                enabled: !controller.isLoading,
                 controller: controller.recipeController,
                 textAlignVertical: TextAlignVertical.top,
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),
-                  labelText: "Start typing a recipe, and use 'Suggest'",
+                  labelText: "Ingredients to include",
                   alignLabelWithHint: true,
                   // prefixIcon: Icon(Icons.textsms),
                   // contentPadding: EdgeInsets.all(20.0)
@@ -82,25 +87,30 @@ class InventView extends StatelessWidget {
                 children: [
                   ElevatedButton.icon(
                     key: const Key("createButton"),
-                    icon: const Icon(Icons.sports_basketball_rounded),
-                    label: const Text('Suggest'),
-                    onPressed: () async {
-                      FocusScope.of(context).unfocus();
-                      // final gifId = await controller.createGif(context);
-                      // if (gifId != null) {
-                      //   qrCodeController.createGif(
-                      //       gifId, controller.text);
-                      // }
-                    },
+                    icon: const Icon(Icons.wine_bar_outlined),
+                    label: const Text('Invent'),
+                    onPressed: controller.isLoading
+                        ? null
+                        : () async {
+                            FocusScope.of(context).unfocus();
+                            await controller.invent();
+                            // final gifId = await controller.createGif(context);
+                            // if (gifId != null) {
+                            //   qrCodeController.createGif(
+                            //       gifId, controller.text);
+                            // }
+                          },
                   ),
                   ElevatedButton.icon(
                     key: const Key("saveButton"),
                     icon: const Icon(Icons.save),
                     label: const Text('Save'),
-                    onPressed: () async {
-                      FocusScope.of(context).unfocus();
-                      await controller.save();
-                    },
+                    onPressed: controller.isLoading
+                        ? null
+                        : () async {
+                            FocusScope.of(context).unfocus();
+                            await controller.save();
+                          },
                   )
                 ])),
       ],

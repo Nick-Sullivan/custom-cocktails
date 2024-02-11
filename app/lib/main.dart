@@ -1,8 +1,10 @@
 import 'package:custom_cocktails/infrastructure/cocktail_store.dart';
+import 'package:custom_cocktails/infrastructure/invent_api.dart';
 import 'package:custom_cocktails/screens/home_screen.dart';
 import 'package:custom_cocktails/widgets/cocktail/cocktail_controller.dart';
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get_it/get_it.dart';
 
 void main() async {
@@ -12,7 +14,10 @@ void main() async {
 }
 
 Future<void> setupSingletons() async {
+  await dotenv.load(fileName: ".env.automated");
   GetIt.I.registerSingleton<CocktailStore>(CocktailStore());
+  GetIt.I.registerSingleton<InventApiInteractor>(
+      InventApiInteractor(url: dotenv.env['API_GATEWAY_URL']!));
   final collectionController = CocktailController();
   await collectionController.loadCollection();
   GetIt.I.registerSingleton<CocktailController>(collectionController);

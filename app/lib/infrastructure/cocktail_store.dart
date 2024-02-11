@@ -63,7 +63,7 @@ class CocktailStore {
   Future<Directory> getDirectory() async {
     if (_dir == null) {
       final dir = await getApplicationDocumentsDirectory();
-      _dir = Directory("${dir.path}/qr_codes");
+      _dir = Directory("${dir.path}/cocktails");
     }
     return _dir!;
   }

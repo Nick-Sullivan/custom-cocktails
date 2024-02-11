@@ -1,15 +1,18 @@
 import 'dart:convert';
+import 'package:uuid/uuid.dart';
+
+const uuid = Uuid();
 
 class Cocktail {
   final String id;
   final String name;
   final String recipe;
 
-  const Cocktail({
-    required this.id,
-    required this.name,
-    required this.recipe,
-  });
+  factory Cocktail({required String name, required String recipe, String? id}) {
+    return Cocktail._(name: name, recipe: recipe, id: id ?? uuid.v4());
+  }
+
+  Cocktail._({required this.name, required this.recipe, required this.id});
 
   List<int> serialise() {
     final json = jsonEncode({"id": id, "name": name, "recipe": recipe});
