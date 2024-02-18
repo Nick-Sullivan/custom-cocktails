@@ -61,11 +61,9 @@ class CocktailScreen extends StatelessWidget {
     return ListenableBuilder(
         listenable: controller,
         builder: (BuildContext context, Widget? child) {
-          return Center(
-            child: SingleChildScrollView(
-              child: CocktailView(
-                  controller: controller, key: const Key('cocktailView')),
-            ),
+          return SingleChildScrollView(
+            child: CocktailView(
+                controller: controller, key: const Key('cocktailView')),
           );
         });
   }

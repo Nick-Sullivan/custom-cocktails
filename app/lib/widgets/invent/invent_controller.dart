@@ -6,11 +6,15 @@ import 'package:get_it/get_it.dart';
 
 class InventController extends ChangeNotifier {
   final nameController = TextEditingController();
+  final ingredientController = TextEditingController();
+  final bannedController = TextEditingController();
   final recipeController = TextEditingController();
   final cocktailStore = GetIt.instance<CocktailStore>();
   final inventApi = GetIt.instance<InventApiInteractor>();
 
   String get name => nameController.text;
+  String get bannedIngredients => bannedController.text;
+  String get ingredients => ingredientController.text;
   String get recipe => recipeController.text;
   bool _isValid = false;
   bool get isValid => _isValid;
@@ -31,7 +35,10 @@ class InventController extends ChangeNotifier {
     _isLoading = true;
     notifyListeners();
 
-    final cocktail = await inventApi.invent(name, recipe);
+    final cocktail =
+        await inventApi.invent(name, ingredients, bannedIngredients);
+    nameController.text = cocktail.name;
+    recipeController.text = cocktail.recipe;
     _isLoading = false;
     notifyListeners();
   }

@@ -7,12 +7,13 @@ class InventApiInteractor {
 
   InventApiInteractor({required this.url});
 
-  Future<Cocktail> invent(String name, String ingredients) async {
+  Future<Cocktail> invent(
+      String name, String ingredients, String bannedIngredients) async {
     final uri = Uri.parse('$url/invent');
     final request = '''{
       "name": "$name",
       "ingredients": "$ingredients",
-      "banned_ingredients": "eggs"
+      "banned_ingredients": "$bannedIngredients"
     }''';
     return await sendRequest(uri, request);
   }

@@ -42,6 +42,14 @@ class CocktailController extends ChangeNotifier {
     notifyListeners();
   }
 
+  void clearSelected() {
+    if (_selectedId == null) {
+      return;
+    }
+    _selectedId = null;
+    notifyListeners();
+  }
+
   Future<void> deleteSelectedCocktail() async {
     _isLoading = true;
     notifyListeners();
@@ -55,5 +63,10 @@ class CocktailController extends ChangeNotifier {
 
   Cocktail get(String id) {
     return store.get(id);
+  }
+
+  Future<void> add(Cocktail c) async {
+    await store.save(c);
+    notifyListeners();
   }
 }

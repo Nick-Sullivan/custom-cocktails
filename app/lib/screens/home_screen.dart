@@ -28,7 +28,7 @@ class HomeScreen extends StatelessWidget {
               ])),
           body: TabBarView(children: [
             InventScreen(),
-            const CocktailListScreen(),
+            CocktailListScreen(),
           ]),
         ));
   }

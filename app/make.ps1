@@ -52,5 +52,6 @@ switch ($command) {
         }
     }
     "build" { Build }
+    "destroy" { Destroy }
     "test" { Test }
 }

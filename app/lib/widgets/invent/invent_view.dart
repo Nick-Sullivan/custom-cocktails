@@ -21,7 +21,12 @@ class InventView extends StatelessWidget {
             controller.clearNotification();
           }
           if (controller.isLoading) {
-            return const CircularProgressIndicator(key: Key('loading'));
+            return Stack(children: [
+              createColumn(context),
+              const Center(
+                  child: CircularProgressIndicator(key: Key('loading'))),
+            ]);
+            // return const CircularProgressIndicator(key: Key('loading'));
           }
           return createColumn(context);
         });
@@ -33,39 +38,71 @@ class InventView extends StatelessWidget {
         Expanded(
           child: SingleChildScrollView(
               child: Column(children: [
+            // Name
             Container(
               height: 80,
               padding: const EdgeInsets.fromLTRB(20, 10, 20, 0),
               child: TextFormField(
                 key: const Key("nameText"),
                 controller: controller.nameController,
-                autofocus: true,
                 enabled: !controller.isLoading,
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),
                   labelText: "Cocktail name",
                   prefixIcon: Icon(Icons.liquor_outlined),
-                  // contentPadding: EdgeInsets.fromLTRB(20, 0, 20, 0)
                 ),
-                // validator: (value) {},
               ),
             ),
+            // Ingredients
             Container(
               padding: const EdgeInsets.fromLTRB(20, 10, 20, 0),
               child: TextFormField(
                 key: const Key("ingredientsText"),
-                keyboardType: TextInputType.multiline,
-                minLines: 15,
-                maxLines: null,
                 enabled: !controller.isLoading,
+                controller: controller.ingredientController,
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.check_circle_rounded),
+                  labelText: "Ingredients to include (optional)",
+                ),
+                validator: (value) {
+                  return null;
+                },
+              ),
+            ),
+            // Banned Ingredients
+            Container(
+              padding: const EdgeInsets.fromLTRB(20, 10, 20, 0),
+              child: TextFormField(
+                key: const Key("bannedText"),
+                enabled: !controller.isLoading,
+                controller: controller.bannedController,
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: "Ingredients to exclude (optional)",
+                  prefixIcon: Icon(Icons.close_rounded),
+                ),
+                validator: (value) {
+                  return null;
+                },
+              ),
+            ),
+
+            // Recipe
+            Container(
+              padding: const EdgeInsets.fromLTRB(20, 10, 20, 0),
+              child: TextFormField(
+                key: const Key("recipeText"),
+                keyboardType: TextInputType.multiline,
+                minLines: 10,
+                maxLines: null,
+                enabled: false,
                 controller: controller.recipeController,
                 textAlignVertical: TextAlignVertical.top,
                 decoration: const InputDecoration(
                   border: OutlineInputBorder(),
-                  labelText: "Ingredients to include",
+                  labelText: "Recipe",
                   alignLabelWithHint: true,
-                  // prefixIcon: Icon(Icons.textsms),
-                  // contentPadding: EdgeInsets.all(20.0)
                 ),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -77,9 +114,10 @@ class InventView extends StatelessWidget {
                   return null;
                 },
               ),
-            )
+            ),
           ])),
         ),
+        // Buttons
         SizedBox(
             height: 60,
             child: Row(
@@ -87,18 +125,13 @@ class InventView extends StatelessWidget {
                 children: [
                   ElevatedButton.icon(
                     key: const Key("createButton"),
-                    icon: const Icon(Icons.wine_bar_outlined),
+                    icon: const Icon(Icons.color_lens),
                     label: const Text('Invent'),
                     onPressed: controller.isLoading
                         ? null
                         : () async {
                             FocusScope.of(context).unfocus();
                             await controller.invent();
-                            // final gifId = await controller.createGif(context);
-                            // if (gifId != null) {
-                            //   qrCodeController.createGif(
-                            //       gifId, controller.text);
-                            // }
                           },
                   ),
                   ElevatedButton.icon(
